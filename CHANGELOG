@@ -3,6 +3,7 @@ XPresso Align - Cinema 4D Python Plugin, Changelog
 
 v1.1 - 06.02.2012
 =================
+> Renamed from XPresso Align to XPAT (XPresso Alignment Tools)
 > Dialog defining options for the plugin.
     > Horizontal Spacing
     > Vertical Spacing
