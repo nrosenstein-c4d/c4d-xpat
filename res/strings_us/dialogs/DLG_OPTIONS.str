@@ -1,0 +1,11 @@
+// C4D-DialogResource
+
+DIALOGSTRINGS DLG_OPTIONS
+{
+  IDS_BUTTON   "Save";
+  IDS_DIALOG   "XPAT Options";
+  IDS_STATIC   "Group";
+  IDS_STATIC1  "Horizontal Spacing";
+  IDS_STATIC2  "Vertical Spacing";
+  IDS_STATIC3  "Group";
+}

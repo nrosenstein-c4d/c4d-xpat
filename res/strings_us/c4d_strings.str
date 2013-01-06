@@ -1,0 +1,8 @@
+STRINGTABLE {
+    XPAT_COMMAND_OPENOPTIONSDIALOG "Options ...";
+    XPAT_COMMAND_OPENOPTIONSDIALOG_HELP "Open the XPAT options dialog.";
+    XPAT_COMMAND_ALIGNHORIZONTAL "Align Nodes H";
+    XPAT_COMMAND_ALIGNHORIZONTAL_HELP "Align selected XPresso Nodes horizontally.";
+    XPAT_COMMAND_ALIGNVERTICAL "Align Nodes V";
+    XPAT_COMMAND_ALIGNVERTICAL_HELP "Align selected XPresso Nodes vertically.";
+}
