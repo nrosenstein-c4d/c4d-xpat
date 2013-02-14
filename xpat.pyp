@@ -28,7 +28,7 @@ import itertools
 from c4d.modules import graphview as gv
 from c4dtools.misc import graphnode
 
-res, importer = c4dtools.prepare(__file__)
+res, importer = c4dtools.prepare(__file__, __res__)
 settings = c4dtools.helpers.Attributor({
     'options_filename': res.file('config.json'),
 })
