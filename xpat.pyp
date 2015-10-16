@@ -1,6 +1,6 @@
 # coding: utf-8
 #
-# Copyright (C) 2012, Niklas Rosenstein
+# Copyright (C) 2012-2015, Niklas Rosenstein
 # Licensed under the GNU General Public License
 #
 # XPAT - XPresso Alignment Tools
@@ -12,21 +12,157 @@
 #
 # Requirements:
 # - MAXON Cinema 4D R13+
-# - Python `c4dtools` library. Get it from
-#   http://github.com/NiklasRosenstein/c4dtools
 #
 # Author:  Niklas Rosenstein <rosensteinniklas@gmail.com>
-# Version: 1.1 (01/06/2012)
+# Version: 1.2 (01/06/2012)
+
+# == _localimport =============================================================
+# =============================================================================
+
+exec("""
+#__author__='Niklas Rosenstein <rosensteinniklas@gmail.com>'
+#__version__='1.4.7'
+import glob,os,pkgutil,sys,traceback,zipfile
+class _localimport(object):
+ _py3k=sys.version_info[0]>=3
+ _string_types=(str,)if _py3k else(basestring,)
+ def __init__(self,path,parent_dir=os.path.dirname(__file__)):
+  super(_localimport,self).__init__()
+  self.path=[]
+  if isinstance(path,self._string_types):
+   path=[path]
+  for path_name in path:
+   if not os.path.isabs(path_name):
+    path_name=os.path.join(parent_dir,path_name)
+   self.path.append(path_name)
+   self.path.extend(glob.glob(os.path.join(path_name,'*.egg')))
+  self.meta_path=[]
+  self.modules={}
+  self.in_context=False
+ def __enter__(self):
+  try:import pkg_resources;nsdict=pkg_resources._namespace_packages.copy()
+  except ImportError:nsdict=None
+  self.state={'nsdict':nsdict,'nspaths':{},'path':sys.path[:],'meta_path':sys.meta_path[:],'disables':{},'pkgutil.extend_path':pkgutil.extend_path,}
+  sys.path[:]=self.path+sys.path
+  sys.meta_path[:]=self.meta_path+sys.meta_path
+  pkgutil.extend_path=self._extend_path
+  for key,mod in self.modules.items():
+   try:self.state['disables'][key]=sys.modules.pop(key)
+   except KeyError:pass
+   sys.modules[key]=mod
+  for path_name in self.path:
+   for fn in glob.glob(os.path.join(path_name,'*.pth')):
+    self._eval_pth(fn,path_name)
+  for key,mod in sys.modules.items():
+   if hasattr(mod,'__path__'):
+    self.state['nspaths'][key]=mod.__path__[:]
+    mod.__path__=pkgutil.extend_path(mod.__path__,mod.__name__)
+  self.in_context=True
+  return self
+ def __exit__(self,*__):
+  if not self.in_context:
+   raise RuntimeError('context not entered')
+  local_paths=[]
+  for path in sys.path:
+   if path not in self.state['path']:
+    local_paths.append(path)
+  for key,path in self.state['nspaths'].items():
+   sys.modules[key].__path__=path
+  for meta in sys.meta_path:
+   if meta is not self and meta not in self.state['meta_path']:
+    if meta not in self.meta_path:
+     self.meta_path.append(meta)
+  modules=sys.modules.copy()
+  for key,mod in modules.items():
+   force_pop=False
+   filename=getattr(mod,'__file__',None)
+   if not filename and key not in sys.builtin_module_names:
+    parent=key.rsplit('.',1)[0]
+    if parent in modules:
+     filename=getattr(modules[parent],'__file__',None)
+    else:
+     force_pop=True
+   if force_pop or(filename and self._is_local(filename,local_paths)):
+    self.modules[key]=sys.modules.pop(key)
+  sys.modules.update(self.state['disables'])
+  sys.path[:]=self.state['path']
+  sys.meta_path[:]=self.state['meta_path']
+  pkgutil.extend_path=self.state['pkgutil.extend_path']
+  try:
+   import pkg_resources
+   pkg_resources._namespace_packages.clear()
+   pkg_resources._namespace_packages.update(self.state['nsdict'])
+  except ImportError:pass
+  self.in_context=False
+  del self.state
+ def _is_local(self,filename,pathlist):
+  filename=os.path.abspath(filename)
+  for path_name in pathlist:
+   path_name=os.path.abspath(path_name)
+   if self._is_subpath(filename,path_name):
+    return True
+  return False
+ def _eval_pth(self,filename,sitedir):
+  if not os.path.isfile(filename):
+   return
+  with open(filename,'r')as fp:
+   for index,line in enumerate(fp):
+    if line.startswith('import'):
+     line_fn='{0}#{1}'.format(filename,index+1)
+     try:
+      exec compile(line,line_fn,'exec')
+     except BaseException:
+      traceback.print_exc()
+    else:
+     index=line.find('#')
+     if index>0:line=line[:index]
+     line=line.strip()
+     if not os.path.isabs(line):
+      line=os.path.join(os.path.dirname(filename),line)
+     line=os.path.normpath(line)
+     if line and line not in sys.path:
+      sys.path.insert(0,line)
+ def _extend_path(self,pth,name):
+  def zip_isdir(z,name):
+   name=name.rstrip('/')+'/'
+   return any(x.startswith(name)for x in z.namelist())
+  pth=list(pth)
+  for path in sys.path:
+   if path.endswith('.egg')and zipfile.is_zipfile(path):
+    try:
+     egg=zipfile.ZipFile(path,'r')
+     if zip_isdir(egg,name):
+      pth.append(os.path.join(path,name))
+    except(zipfile.BadZipFile,zipfile.LargeZipFile):
+     pass
+   else:
+    path=os.path.join(path,name)
+    if os.path.isdir(path)and path not in pth:
+     pth.append(path)
+  return pth
+ @staticmethod
+ def _is_subpath(path,ask_dir):
+  try:
+   relpath=os.path.relpath(path,ask_dir)
+  except ValueError:
+   return False
+  return relpath==os.curdir or not relpath.startswith(os.pardir)
+""")
+
+# =============================================================================
+# =============================================================================
 
 import os
 import sys
 import json
 import c4d
-import c4dtools
 import itertools
 
 from c4d.modules import graphview as gv
-from c4dtools.misc import graphnode
+
+with _localimport('c4dtools'):
+    import c4dtools
+    from c4dtools.misc import graphnode
 
 res, importer = c4dtools.prepare(__file__, __res__)
 settings = c4dtools.helpers.Attributor({
