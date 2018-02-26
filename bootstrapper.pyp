@@ -36,16 +36,19 @@ fQ60Krofvon9LAfvuo901Gq6npmsOjZBR8kHrQa0fH4+QDOcd/pj7CNO47g+HR8+WrlZ/AaI7XVw='
 exec(z.decompress(b.b64decode(blob)), vars(m)); _localimport=m;localimport=getattr(m,"localimport")
 del blob, b, t, z, m;
 
-path = ['.']
+import os
+import sys
 
-import os, sys
+path = []
 project_dir = os.path.dirname(__file__)
-lib_archive = os.path.join(project_dir, 'lib-' + sys.version[:3].replace('.', '-') + '.egg')
-lib_dir = os.path.join(project_dir, 'lib')
-if os.path.join(lib_dir):  # During development
-  path.append(lib_dir)
-else:  # Release
-  path.append(lib_archive)
+
+def get_libpath():
+  libdir = os.path.join(project_dir, 'lib')
+  if os.path.isdir(libdir):
+    return libdir
+  return libdir + '-' + sys.version[:3].replace('.', '-') + '.egg'
+
+path.append(get_libpath())
 
 with localimport(path, do_eggs=False) as importer:
   import c4d_xpat.res

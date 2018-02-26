@@ -1,0 +1,12 @@
+
+{
+  "output": "./lib-{target}.egg",
+  "targets": {
+    "2-6": "py -2.6",
+    "2-7": "py -2.7"
+  },
+  "include": [
+    "lib/c4d_xpat",
+    "lib/py-nr.c4d/nr"
+  ]
+}
