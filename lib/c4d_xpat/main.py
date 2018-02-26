@@ -55,40 +55,20 @@ def align_nodes(nodes, mode, spacing):
 
     nodes = [graphnode.GraphNode(n) for n in nodes]
     nodes.sort(key=lambda n: get_0(n.position))
-    midpoint = graphnode.find_nodes_mid(nodes)
 
-    # Apply the spacing between the nodes relative to the coordinate-systems
-    # origin. We can offset them later because we now the nodes' midpoint
-    # already.
-    first_position = nodes[0].position
-    new_positions = []
-    prev_offset = 0
+    top_left = nodes[0].position
+    offset = None
     for node in nodes:
-        # Compute the relative position of the node.
-        position = node.position
-        set_0(position, get_0(position) - get_0(first_position))
-
-        # Obtain it's size and check if the node needs to be re-placed.
-        size = node.size
-        if get_0(position) < prev_offset:
-            set_0(position, prev_offset)
-            prev_offset += spacing + get_0(size)
+        pos = node.position
+        set_1(pos, get_1(top_left))
+        if offset is None or get_0(pos) < (offset + spacing):
+            if offset is None: offset = get_0(top_left)
+            else: offset += spacing
+            set_0(pos, offset)
         else:
-            prev_offset = get_0(position) + get_0(size) + spacing
-
-        set_1(position, get_1(midpoint))
-        new_positions.append(position)
-
-    # Center the nodes again.
-    bbox_size = prev_offset - spacing
-    bbox_size_2 = bbox_size * 0.5
-    for node, position in itertools.izip(nodes, new_positions):
-        # TODO: Here is some issue with offsetting the nodes. Some value
-        # dependent on the spacing must be added here to not make the nodes
-        # move horizontally/vertically although they have already been
-        # aligned.
-        set_0(position, get_0(midpoint) + get_0(position) - bbox_size_2 + spacing)
-        node.position = position
+            offset = get_0(pos)
+        offset += get_0(node.size)
+        node.position = pos
 
 def align_nodes_shortcut(mode, spacing):
     master = gv.GetMaster(0)
