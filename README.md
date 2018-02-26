@@ -1,23 +1,23 @@
-XPAT - XPresso Alignment Tools
-==============================
+## Cinema 4D XPresso Alignment Tools
 
-XPAT is a free & open source Cinema 4D plugin that allows you to align
-XPresso nodes horizontally or vertically. Simply select the nodes, run
-the plugin, and there you go! Compatible with Cinema 4D R13+.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-__Installation__
+XPAT is a Cinema 4D plugin that allows you to align XPresso nodes horizontally
+or vertically.
 
-1. [Download][releases] the latest release
-2. Unpack the contents of the ZIP file to your plugins folder
+### Installation
 
-__Features__
+  [Releases]: https://github.com/NiklasRosenstein/c4d-xpat/releases
+
+1. Go to the [Releases] page and download the latest version
+2. Unpack the contents of the ZIP file to your Cinema 4D plugins folder
+
+### Features
 
 * Aligned nodes will never overlap
 * Dialog for specifieng the horizontal and vertical spacing between aligned nodes
 * Full undo-compatibility
 
-  [releases]: https://github.com/nr-plugins/xpresso-alignment-tools/releases
+---
 
------
-
-Copyright (C) 2015 Niklas Rosenstein
+<p align="center">Copyright &copy; 2013-2018 Niklas Rosenstein</p>
