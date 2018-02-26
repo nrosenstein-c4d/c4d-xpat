@@ -25,8 +25,10 @@ import sys
 import json
 import c4d
 import itertools
+import nr.c4d.utils
 from c4d.modules import graphview as gv
 from nr.c4d import gv as graphnode
+from nr.c4d.gui import find_menu_resource
 from . import res
 from .res import __res__
 
@@ -167,6 +169,7 @@ class XPAT_Command_OpenOptionsDialog(c4d.plugins.CommandData):
     """
 
     PLUGIN_ID = 1029621
+    PLUGIN_INFO = c4d.PLUGINFLAG_HIDEPLUGINMENU
     PLUGIN_NAME = res.string('XPAT_COMMAND_OPENOPTIONSDIALOG')
     PLUGIN_HELP = res.string('XPAT_COMMAND_OPENOPTIONSDIALOG_HELP')
 
@@ -190,6 +193,7 @@ class XPAT_Command_OpenOptionsDialog(c4d.plugins.CommandData):
 class XPAT_Command_AlignHorizontal(c4d.plugins.CommandData):
 
     PLUGIN_ID = 1029538
+    PLUGIN_INFO = c4d.PLUGINFLAG_HIDEPLUGINMENU
     PLUGIN_NAME = res.string('XPAT_COMMAND_ALIGNHORIZONTAL')
     PLUGIN_ICON = res.bitmap('res/xpresso-align-h.png')
     PLUGIN_HELP = res.string('XPAT_COMMAND_ALIGNHORIZONTAL_HELP')
@@ -201,6 +205,7 @@ class XPAT_Command_AlignHorizontal(c4d.plugins.CommandData):
 class XPAT_Command_AlignVertical(c4d.plugins.CommandData):
 
     PLUGIN_ID = 1029539
+    PLUGIN_INFO = c4d.PLUGINFLAG_HIDEPLUGINMENU
     PLUGIN_NAME = res.string('XPAT_COMMAND_ALIGNVERTICAL')
     PLUGIN_ICON = res.bitmap('res/xpresso-align-v.png')
     PLUGIN_HELP = res.string('XPAT_COMMAND_ALIGNVERTICAL_HELP')
@@ -214,3 +219,17 @@ options = XPAT_Options()
 register_command(XPAT_Command_OpenOptionsDialog())
 register_command(XPAT_Command_AlignHorizontal())
 register_command(XPAT_Command_AlignVertical())
+
+def PluginMessage(msg_id, data):
+    if msg_id == c4d.C4DPL_BUILDMENU:
+        bc = find_menu_resource('M_EDITOR', 'IDS_EDITOR_PLUGINS')
+        submenu = c4d.BaseContainer()
+        submenu.InsData(c4d.MENURESOURCE_SUBTITLE, 'XPresso Alignment Tools')
+        submenu.InsData(c4d.MENURESOURCE_COMMAND, 'PLUGIN_CMD_' + str(XPAT_Command_AlignHorizontal.PLUGIN_ID))
+        submenu.InsData(c4d.MENURESOURCE_COMMAND, 'PLUGIN_CMD_' + str(XPAT_Command_AlignVertical.PLUGIN_ID))
+        submenu.InsData(c4d.MENURESOURCE_COMMAND, 'PLUGIN_CMD_' + str(XPAT_Command_OpenOptionsDialog.PLUGIN_ID))
+        # Find the location before the plugins list.
+        index = next(i for i, x in enumerate(bc) if x[1] == 'IDM_PLUGINS')
+        nr.c4d.utils.bc_insert(bc, c4d.MENURESOURCE_SUBMENU, submenu, index)
+        return True
+    return False

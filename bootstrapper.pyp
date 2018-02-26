@@ -40,17 +40,23 @@ import os
 import sys
 
 path = []
-project_dir = os.path.dirname(__file__)
+project_path = os.path.dirname(__file__)
 
 def get_libpath():
-  libdir = os.path.join(project_dir, 'lib')
+  libdir = os.path.join(project_path, 'lib')
   if os.path.isdir(libdir):
     return libdir
   return libdir + '-' + sys.version[:3].replace('.', '-') + '.egg'
 
 path.append(get_libpath())
+plugin_module = 'c4d_xpat'
 
 with localimport(path, do_eggs=False) as importer:
-  import c4d_xpat.res
-  c4d_xpat.res.__res__ = __res__
-  import c4d_xpat.main
+  # Set up the resource submodule (remove if you don't use this).
+  res = __import__(plugin_module + '.res', fromlist=[None])
+  res.project_path = project_path
+  res.__res__ = __res__
+  # Load the main plugin components.
+  main = __import__(plugin_module + '.main', fromlist=[None])
+  if hasattr(main, 'PluginMessage'):
+    PluginMessage = main.PluginMessage
