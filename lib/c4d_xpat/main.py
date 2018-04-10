@@ -188,7 +188,7 @@ class XPAT_Command_OpenOptionsDialog(c4d.plugins.CommandData):
     # c4d.gui.CommandData
 
     def Execute(self, doc):
-        return self.dialog.Open(c4d.DLG_TYPE_MODAL)
+        return self.dialog.Open(c4d.DLG_TYPE_ASYNC)
 
 class XPAT_Command_AlignHorizontal(c4d.plugins.CommandData):
 
