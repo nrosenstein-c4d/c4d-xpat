@@ -32,7 +32,7 @@ from nr.c4d.gui import find_menu_resource
 from . import res
 from .res import __res__
 
-OPTIONS_FILENAME = res.localpath('../config.json')
+OPTIONS_FILENAME = os.path.join(c4d.storage.GeGetC4DPath(c4d.C4D_PATH_PREFS), 'xpat-options.json')
 
 def align_nodes(nodes, mode, spacing):
     r"""
@@ -183,9 +183,7 @@ class XPAT_Command_OpenOptionsDialog(c4d.plugins.CommandData):
             self._dialog = XPAT_OptionsDialog()
         return self._dialog
 
-    # c4dtools.plugins.Command
-
-    # c4d.gui.CommandData
+    # c4d.plugins.CommandData
 
     def Execute(self, doc):
         return self.dialog.Open(c4d.DLG_TYPE_ASYNC)
